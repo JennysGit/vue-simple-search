@@ -19,7 +19,7 @@
         </div>
       </div>
     </form>
-    <table class="table table-hover table-striped search-result-table" v-show="foodList.length > 0">
+    <table class="table table-hover table-striped search-result-table" v-show="foodList.length > 0 && !isSearching">
       <thead>
         <tr>
           <th width="20%">菜名</th>
@@ -40,6 +40,7 @@
     <div class="in-searching text-center" v-show="isSearching">
       <img :src="loadingImgUrl" alt="">
     </div>
+    
   </div>
 </template>
 
@@ -79,7 +80,7 @@ export default {
       }
       console.log(searchParams)
       this.isSearching = true
-      axios.get('api/search', {data: searchParams})
+      axios.post('api/search', searchParams)
         .then((res) => {
           if (res.data.data) {
             this.foodList = res.data.data
