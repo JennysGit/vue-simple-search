@@ -12,8 +12,6 @@ const portfinder = require('portfinder')
 const express = require('express')
 const app = express()
 const apiRoutes = express.Router();
-const bodyParser = require('body-parser')
-const api = require('../servers/index.js')(apiRoutes)
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
@@ -69,19 +67,25 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   ]
 })
 
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use('/api', apiRoutes)
 
-app.use(bodyParser.json())
+function before() {
+  app.get('/api/search', function(req, res) {
+    console.log("search");
+    res.json({
+      errno: 0,
+      data: { name: 'jenny' }
+    })
+  })
+}
 
-app.use('./api', apiRoutes)
-
-apiRoutes.get('/search', function() {
+/*apiRoutes.get('/api/search', function() {
   console.log("search");
   res.json({
     errno: 0,
     data: { name: 'jenny' }
   })
-})
+})*/
 
 module.exports = new Promise((resolve, reject) => {
   portfinder.basePort = process.env.PORT || config.dev.port

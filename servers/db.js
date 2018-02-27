@@ -12,7 +12,7 @@ const Schema = new mongoose.Schema({
   tags: Array,
 });
 const Models = {
-  food: mongoose.model('food', Schema)
+  food: mongoose.model('datas', Schema)
 }
 mongoose.connect('mongodb://root:123456@ds247678.mlab.com:47678/zhangchu-foods')
 const db = mongoose.connection
