@@ -31,7 +31,7 @@
 		},
 		data () {
 			return {
-				pageSize: 5, // 每页显示条数
+				pageSize: 1, // 每页显示条数
 				pageCount: 0 // 总页数
 				pageCurrent:1, // 当前页
 				totalCount: 0, //总页数

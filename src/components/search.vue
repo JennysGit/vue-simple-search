@@ -37,11 +37,21 @@
         </tr>
       </tbody>
     </table>
-    <nav aria-label="Page navigation" class="text-center" v-show="page.numArray.length > 0 && !isSearching">
+    <nav aria-label="Page navigation" class="text-center" v-show="foodList.length > 0 && !isSearching">
       <ul class="pagination">
+        <li v-show="page.curIndex != 0">
+           <a href="javascript:void(0)" aria-label="first"  @click="goPageIndex(0)">
+            <span aria-hidden="true">第一页</span>
+          </a>
+        </li>
         <li :class="{'disabled': page.curIndex == 0}">
           <a href="javascript:void(0)" aria-label="Previous"  @click="goPageIndex(page.curIndex - 1)">
-            <span aria-hidden="true">&laquo;</span>
+            <span aria-hidden="true">上一页</span>
+          </a>
+        </li>
+        <li v-show="page.showPrevMore">
+          <a href="javascript:void(0)" aria-label="Next" @click="goPageIndex(page.prevMoreVal)">
+            <span aria-hidden="true">...</span>
           </a>
         </li>
         <li v-for="pageNum in page.numArray" :class="{'active': page.curIndex == pageNum - 1}">
@@ -49,9 +59,19 @@
           <span>{{ pageNum }}</span>
           </a>
         </li>
+        <li v-show="page.showNextMore">
+          <a href="javascript:void(0)" aria-label="Next" @click="goPageIndex(page.nextMoreVal)">
+            <span aria-hidden="true">...</span>
+          </a>
+        </li>
         <li :class="{'disabled': page.curIndex == page.total - 1}">
           <a href="javascript:void(0)" aria-label="Next"  @click="goPageIndex(page.curIndex + 1)">
-            <span aria-hidden="true">&raquo;</span>
+            <span aria-hidden="true">下一页</span>
+          </a>
+        </li>
+        <li v-show="page.curIndex != page.total - 1">
+           <a href="javascript:void(0)" aria-label="last" @click="goPageIndex(page.total - 1)">
+            <span aria-hidden="true">最后一页</span>
           </a>
         </li>
       </ul>
@@ -78,7 +98,9 @@ export default {
         curIndex: 0,
         size: 5,
         data: [],
-        numArray: []
+        numArray: [],
+        prevMoreVal: null,
+        nextMoreVal: null
       }
     }
   },
@@ -92,7 +114,7 @@ export default {
       }
 
       if (searchData.tags && searchData.tags.trim()) {
-        searchParams.tags = searchData.tags // TODO: parse as array.
+        searchParams.tags = searchData.tags
       }
 
       if (searchData.common && searchData.common.trim()) {
@@ -117,31 +139,62 @@ export default {
         .catch((err) => {
           console.log(err)
           this.isSearching = false
+          this.page.data = []
+          this.foodList = []
         })
     },
     _pageData (data) {
       this.page.numArray = []
       this.page.total = Math.ceil(data.length / this.page.size)
-      for(let i = 1; i <= this.page.total; i++){
-        this.page.numArray.push(i)
-      }
+     
       if(data.length == 0){
         this.page.data = []
         return
       }
+    
       this.goPageIndex(0)
     },
     goPageIndex (index) { 
-      console.log("this.page.index",index)
       if(index >= 0 && index <= this.page.total - 1) {
+        this.page.numArray = []
         let startIndex = index * this.page.size
         let endIndex = startIndex + this.page.size
         this.page.data = this.foodList.slice(startIndex, endIndex)
         this.page.curIndex = index
+
+        if(this.page.total > 6){
+          this.page.showPrevMore = true
+          this.page.showNextMore = true
+          let startNumIndex, endNumIndex
+          if(index < 3){
+            startNumIndex = 0
+            endNumIndex = 4
+            this.page.showPrevMore = false
+            this.page.nextMoreVal = endNumIndex + 3
+          }else if(index > this.page.total - 3){
+            startNumIndex = this.page.total - 5
+            endNumIndex = this.page.total -1
+            this.page.showNextMore = false;
+            this.page.prevMoreVal = startNumIndex - 3
+          }else {
+           startNumIndex = index - 2
+           endNumIndex = index + 2 
+           this.page.prevMoreVal = startNumIndex -3
+           this.page.nextMoreVal = endNumIndex + 3
+          }
+          for(let i = startNumIndex + 1; i<= endNumIndex + 1; i++){
+            this.page.numArray.push(i)
+          }
+        }else{
+          this.page.showPrevMore = false
+          this.page.showNextMore = false
+          for(let i = 1; i <= this.page.total; i++) {
+              this.page.numArray.push(i)
+          }
+        }
       }
     },
     showDetail() {
-
     }
   }
 }
