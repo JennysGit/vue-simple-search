@@ -15,7 +15,7 @@
           <input id="common" type="text" class="form-control" placeholder="常识" v-model="searchData.common"/>
         </div>
         <div class="col-sm-3 form-group">
-          <button class="btn btn-primary search-btn" @click="search()" :disabled="isSearching">搜索</button>
+          <button class="btn btn-primary search-btn" @click="search($event)" :disabled="isSearching">搜索</button>
         </div>
       </div>
     </form>
@@ -32,8 +32,8 @@
         <tr v-for="food in page.data">
           <td>{{food.title}}</td>
           <td class="tags"><button v-for="tag in food.tags" class="btn" :class="{'btn-success': tag.type == 2}">{{ tag.text }}</button></td>
-          <td><span>{{ food.common.txt }}</span></td>
-          <td><a href="javascript:void(0)" :click="showDetail()">详情</a></td>
+          <td><span>{{ food.common.txt.trim() }}</span></td>
+          <td><a :href="'http://h5.izhangchu.com/dishes_view/index.html?dishes_id='+food.dishes_id" target="_blank" :click="showDetail()">详情</a></td>
         </tr>
       </tbody>
     </table>
@@ -105,20 +105,22 @@ export default {
     }
   },
   methods: {
-    search () {
+    search ($event) {
+      $event.preventDefault() // 阻止表单默认提交
+
       let searchParams = {}
       let searchData = this.searchData
 
       if (searchData.title && searchData.title.trim()) {
-        searchParams.title = searchData.title
+        searchParams.title = searchData.title.trim()
       }
 
       if (searchData.tags && searchData.tags.trim()) {
-        searchParams.tags = searchData.tags
+        searchParams.tags = searchData.tags.trim()
       }
 
       if (searchData.common && searchData.common.trim()) {
-        searchParams.common = searchData.common
+        searchParams.common = searchData.common.trim()
       }
 
       if (Object.keys(searchParams).length === 0) {
