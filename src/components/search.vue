@@ -4,7 +4,8 @@
       <div class="row">
         <div class="col-sm-3 form-group">
           <label for="keyword">菜名</label>
-          <input id="keyword" type="text" class="form-control" placeholder="菜名" v-model="searchData.title"/>
+          <typeahead placeholder="菜名" v-model="searchData.title" :resultList="userSearchCacheData.title"></typeahead>
+          <!-- <input id="keyword" type="text" class="form-control" placeholder="菜名" v-model="searchData.title"/> -->
         </div>
         <div class="col-sm-3 form-group">
           <label for="keyword">标签</label>
@@ -86,12 +87,18 @@
 
 <script>
 import axios from 'axios'
+import typeahead from './typeahed/test.vue'
 
 export default {
   name: 'search',
   data () {
     return {
       searchData: {title: '', tags: '', common: ''},
+      userSearchCacheData: {
+        title: ["炒", "煮", "蒸饭"],
+        tags: [],
+        common: []
+      },
       foodList: [],
       isSearching: false,
       loadingImgUrl: require('../assets/loading.gif'),
@@ -212,6 +219,9 @@ export default {
       //   }
       // }
     }
+  },
+  components: {
+    typeahead
   }
 }
 </script>

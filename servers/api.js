@@ -1,6 +1,8 @@
 const models = require('./db')
 const express = require('express')
 const router = express.Router()
+const redis = require('redis')
+const client = redis.createClient()
 
 
 /* For Test */
@@ -9,26 +11,114 @@ const router = express.Router()
 })
 */
 
+let titleArr = []
+let tagArr = []
+let commonArr = []
+// 从最新的数据开始展示
+const args1 = ['myTitle', '+inf', '-inf']
+client.zrevrangebyscore(args1, (err, response) => {
+  if (err) throw err
+  console.log('myTitle', response)
+  titleArr = response
+})
+
+const args2 = ['myTag', '+inf', '-inf']
+client.zrevrangebyscore(args2, (err, response) => {
+  if (err) throw err
+  console.log('myTag', response)
+  tagArr = response
+})
+
+const args3 = ['myCommon', '+inf', '-inf']
+client.zrevrangebyscore(args3, (err, response) => {
+  if (err) throw err
+  console.log('myCommon', response)
+  commonArr = response
+})
+
 router.post('/api/search', (req, res) => {
-  console.log("request", req.body);
-  let _q = req.body;
-  let params = {};
+  console.log('request', req.body)
+  let _q = req.body
+  let params = {}
+  if (titleArr.length === 0) {
+    titleArr = ['myTitle']
+  }
+  if (tagArr.length === 0) {
+    tagArr = ['myTag']
+  }
+  if (commonArr.length === 0) {
+    commonArr = ['myCommon']
+  }
+  let titleId = Math.floor(titleArr.length / 2)
+  let tagId = Math.floor(tagArr.length / 2)
+  let commonId = Math.floor(commonArr.length / 2)
+
   if (_q.hasOwnProperty('title')) { // 输入菜名查询
-    params = Object.assign(params, { title: { $regex: _q.title, $options: 'i' } });
+    params = Object.assign(params, {
+      title: {
+        $regex: _q.title,
+        $options: 'i'
+      }
+    })
+    titleArr.push(titleId + 1)
+    titleArr.push(_q.title)
+    client.zadd(titleArr, (err, response) => {
+      if (err) throw err
+      console.log('titleArr added ' + response + ' items.')
+      client.zrevrangebyscore(args1, (err, response) => {
+        if (err) throw err
+        console.log('myTitle', response)
+      })
+    })
   }
   if (_q.hasOwnProperty('tags')) { // 输入标签查询
-    params = Object.assign(params, { 'tags.text': { $regex: _q.tags, $options: 'i' } });
+    params = Object.assign(params, {
+      'tags.text': {
+        $regex: _q.tags,
+        $options: 'i'
+      }
+    })
+    tagArr.push(tagId + 1)
+    tagArr.push(_q.tags)
+    client.zadd(tagArr, (err, response) => {
+      if (err) throw err
+      console.log('tagArr added ' + response + ' items.')
+      client.zrevrangebyscore(args2, (err, response) => {
+        if (err) throw err
+        console.log('myTag', response)
+      })
+    })
   }
   if (_q.hasOwnProperty('common')) { // 相关常识查询
-    params = Object.assign(params, { 'common.txt': { $regex: _q.common, $options: 'i' } });
+    params = Object.assign(params, {
+      'common.txt': {
+        $regex: _q.common,
+        $options: 'i'
+      }
+    })
+    commonArr.push(commonId + 1)
+    commonArr.push(_q.common)
+    client.zadd(commonArr, (err, response) => {
+      if (err) throw err
+      console.log('commonArr added ' + response + ' items.')
+      client.zrevrangebyscore(args3, (err, response) => {
+        if (err) throw err
+        console.log('myCommon', response)
+      })
+    })
   }
 
+  client.on('error', (err) => {
+    console.log('Error: ' + err)
+  })
   try {
     models.food.find(params, null, {}, (err, result) => {
-      res.json({ data: result })
+      res.json({
+        data: result
+      })
     })
   } catch (err) {
-    console.log('ERR:', err);
+    console.log('ERR:', err)
   }
 
 })
