@@ -31,9 +31,11 @@
       <tbody>
         <tr v-for="food in page.data">
           <td>{{food.title}}</td>
-          <td class="tags"><button v-for="tag in food.tags" class="btn" :class="{'btn-success': tag.type == 2}">{{ tag.text }}</button></td>
+          <td class="tags">
+            <button v-for="tag in food.tags" class="btn" :class="{'btn-success': tag.type == 2, 'btn-default': tag.type != 2}" @click="selectTag(tag.text)">{{ tag.text }}</button>
+            </td>
           <td><span>{{ food.common.txt.trim() }}</span></td>
-          <td><a :href="'http://h5.izhangchu.com/dishes_view/index.html?dishes_id='+food.dishes_id" target="_blank" :click="showDetail()">详情</a></td>
+          <td><a :href="'http://h5.izhangchu.com/dishes_view/index.html?dishes_id='+food.dishes_id" target="_blank">详情</a></td>
         </tr>
       </tbody>
     </table>
@@ -196,7 +198,19 @@ export default {
         }
       }
     },
-    showDetail() {
+    selectTag (tag) {
+      console.log("select tag")
+      let searchTag = this.searchData.tags
+      this.searchData.tags = tag
+      // multi tags query.
+      // if(searchTag.length === 0) {
+      //   this.searchData.tags = tag
+      // }else {
+      //    if(searchTag.indexOf(tag) === -1){
+
+      //     this.searchData.tags = searchTag + ', ' + tag
+      //   }
+      // }
     }
   }
 }
