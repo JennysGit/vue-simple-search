@@ -72,7 +72,7 @@ router.post('/api/search', (req, res) => {
         $options: 'i'
       }
     })
-    if (!titleArr.find((a) => { return a === _q.title })) {
+    if (!titleArr.find((a) => { return a.value === _q.title })) {
       myTitleArr.push(titleId + 1)
       myTitleArr.push(_q.title)
       client.zadd(myTitleArr, (err, response) => {
@@ -92,7 +92,7 @@ router.post('/api/search', (req, res) => {
         $options: 'i'
       }
     })
-    if (!tagArr.find((a) => { return a === _q.tags })) {
+    if (!tagArr.find((a) => { return a.value === _q.tags })) {
       myTagArr.push(tagId + 1)
       myTagArr.push(_q.tags)
       client.zadd(myTagArr, (err, response) => {
@@ -113,7 +113,7 @@ router.post('/api/search', (req, res) => {
         $options: 'i'
       }
     })
-    if (!commonArr.find((a) => { return a === _q.common })) {
+    if (!commonArr.find((a) => { return a.value === _q.common })) {
       myCommonArr.push(commonId + 1)
       myCommonArr.push(_q.common)
       console.log('commonArr: ', commonArr)
@@ -132,7 +132,7 @@ router.post('/api/search', (req, res) => {
     console.log('Error: ' + err)
   })
   try {
-    models.food.find(params, null, { limit: 10 }, (err, result) => {
+    models.food.find(params, null, {}, (err, result) => {
       if (_q.hasOwnProperty('title')) {
         for (let i = 0, len = result.length; i < len; i++) {
           result[i].title = result[i].title.replace(titleReg, '<em style="color: #dd4b39">$&</em>')
