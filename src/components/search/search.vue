@@ -49,10 +49,14 @@
         v-loading="isSearching"
         v-show="page.data.length > 0 || isSearching">
         <el-table-column
-          prop="title"
+         
           label="菜名"
           width="200"
-        ></el-table-column>
+        >
+          <template slot-scope="scope">
+            <span v-html="scope.row.title"></span>
+          </template>
+        </el-table-column>
         <el-table-column
         label="标签">
           <template slot-scope="scope">
@@ -63,7 +67,7 @@
         label="常识"
         >
           <template slot-scope="scope">
-            <span>{{ scope.row.common.txt.trim() }}</span>
+            <span v-html="scope.row.common.txt.trim()"></span>
           </template>
         </el-table-column>
         <el-table-column
