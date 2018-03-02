@@ -49,7 +49,6 @@
         v-loading="isSearching"
         v-show="page.data.length > 0 || isSearching">
         <el-table-column
-         
           label="菜名"
           width="200"
         >
@@ -74,6 +73,7 @@
         label="操作" width="100" class-name="text-center">
           <template slot-scope="scope">
             <a :href="'http://h5.izhangchu.com/dishes_view/index.html?dishes_id='+ scope.row.dishes_id" target="_blank">详情</a>
+            <a :href="'http://h5.izhangchu.com/dishes_view/index.html?dishes_id='+ scope.row.dishes_id" target="_blank">编辑</a>
           </template>
         </el-table-column>
       </el-table>

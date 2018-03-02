@@ -12,32 +12,44 @@ const client = redis.createClient()
 */
 
 let titleArr = []
+let myTitleArr = []
 let tagArr = []
+let myTagArr = []
 let commonArr = []
+let myCommonArr = []
 // 从最新的数据开始展示
 const args1 = ['myTitle', '+inf', '-inf']
 client.zrevrangebyscore(args1, (err, response) => {
   if (err) throw err
   console.log('myTitle', response)
-  titleArr = response
+  titleArr = formatSearch(response)
 })
 
 const args2 = ['myTag', '+inf', '-inf']
 client.zrevrangebyscore(args2, (err, response) => {
   if (err) throw err
   console.log('myTag', response)
-  tagArr = response
+  tagArr = formatSearch(response)
 })
 
 const args3 = ['myCommon', '+inf', '-inf']
 client.zrevrangebyscore(args3, (err, response) => {
   if (err) throw err
   console.log('myCommon', response)
-  commonArr = response
+  commonArr = formatSearch(response)
 })
 
 // 清空redis
 // client.flushall()
+router.get('/api/search', (req, res) => {
+  res.json({
+    data: {
+      title: titleArr,
+      tags: tagArr,
+      common: commonArr
+    }
+  })
+})
 
 router.post('/api/search', (req, res) => {
   console.log('request', req.body)
@@ -45,15 +57,9 @@ router.post('/api/search', (req, res) => {
   let params = {}
   let titleReg
   let commonReg
-  if (titleArr.length === 0) {
-    titleArr = ['myTitle']
-  }
-  if (tagArr.length === 0) {
-    tagArr = ['myTag']
-  }
-  if (commonArr.length === 0) {
-    commonArr = ['myCommon']
-  }
+  myTitleArr = ['myTitle']
+  myTagArr = ['myTag']
+  myCommonArr = ['myCommon']
   let titleId = Math.floor(titleArr.length / 2)
   let tagId = Math.floor(tagArr.length / 2)
   let commonId = Math.floor(commonArr.length / 2)
@@ -67,9 +73,9 @@ router.post('/api/search', (req, res) => {
       }
     })
     if (!titleArr.find((a) => { return a === _q.title })) {
-      titleArr.push(titleId + 1)
-      titleArr.push(_q.title)
-      client.zadd(titleArr, (err, response) => {
+      myTitleArr.push(titleId + 1)
+      myTitleArr.push(_q.title)
+      client.zadd(myTitleArr, (err, response) => {
         if (err) throw err
         console.log('titleArr added ' + response + ' items.')
         client.zrevrangebyscore(args1, (err, response) => {
@@ -87,9 +93,9 @@ router.post('/api/search', (req, res) => {
       }
     })
     if (!tagArr.find((a) => { return a === _q.tags })) {
-      tagArr.push(tagId + 1)
-      tagArr.push(_q.tags)
-      client.zadd(tagArr, (err, response) => {
+      myTagArr.push(tagId + 1)
+      myTagArr.push(_q.tags)
+      client.zadd(myTagArr, (err, response) => {
         if (err) throw err
         console.log('tagArr added ' + response + ' items.')
         client.zrevrangebyscore(args2, (err, response) => {
@@ -108,16 +114,15 @@ router.post('/api/search', (req, res) => {
       }
     })
     if (!commonArr.find((a) => { return a === _q.common })) {
-      commonArr.push(commonId + 1)
-      commonArr.push(_q.common)
+      myCommonArr.push(commonId + 1)
+      myCommonArr.push(_q.common)
       console.log('commonArr: ', commonArr)
-      client.zadd(commonArr, (err, response) => {
+      client.zadd(myCommonArr, (err, response) => {
         if (err) throw err
         console.log('commonArr added ' + response + ' items.')
         client.zrevrangebyscore(args3, (err, response) => {
           if (err) throw err
           console.log('myCommon', response)
-          res.json({})
         })
       })
     }
@@ -127,7 +132,7 @@ router.post('/api/search', (req, res) => {
     console.log('Error: ' + err)
   })
   try {
-    models.food.find(params, null, {limit: 10}, (err, result) => {
+    models.food.find(params, null, { limit: 10 }, (err, result) => {
       if (_q.hasOwnProperty('title')) {
         for (let i = 0, len = result.length; i < len; i++) {
           result[i].title = result[i].title.replace(titleReg, '<em style="color: #dd4b39">$&</em>')
@@ -147,5 +152,11 @@ router.post('/api/search', (req, res) => {
   }
 
 })
+
+function formatSearch(arr) {
+  return arr.map((item, index) => {
+    return { id: index + 1, value: item }
+  })
+}
 
 module.exports = router;

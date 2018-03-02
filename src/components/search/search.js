@@ -5,8 +5,8 @@ export default {
     return {
       searchData: { title: '', tags: '', common: '' },
       userSearchCacheData: {
-        title: [{ id: 1, value: "炒" }, { id: 2, value: "煮" }, { id: 3, value: "蒸饭" }],
-        tags: [{ id: 1, value: '2' }],
+        title: [],
+        tags: [],
         common: []
       },
       foodList: [],
@@ -18,9 +18,25 @@ export default {
       }
     }
   },
+  created() {
+    axios.get('api/search').then(res => {
+      if (res.data) {
+        // TODO: get search data
+        this.searchResultError = false
+        this.userSearchCacheData = res.data.data;
+        console.log(this.userSearchCacheData)
+      } else {
+        this.searchResultError = true
+      }
+    }).catch(err => {
+      this.searchResultError = true
+    })
+  },
   methods: {
     search($event) {
-      $event.preventDefault() // 阻止表单默认提交
+      if ($event) {
+        $event.preventDefault() // 阻止表单默认提交
+      }
 
       let searchParams = {}
       let searchData = this.searchData
@@ -42,7 +58,9 @@ export default {
         return
       }
       console.log(searchParams)
+      this._saveCacheData()
       this.isSearching = true
+
       axios.post('api/search', searchParams)
         .then((res) => {
           if (res.data.data) {
@@ -50,13 +68,13 @@ export default {
             this._pageData(this.foodList)
             this.isSearching = false
           } else {
-            this.searchResultError = res.status + ': 搜索错误'
+            this.searchResultError = true
           }
         })
         .catch((err) => {
           console.log(err)
           this.isSearching = false
-          this.searchResultError = err;
+          this.searchResultError = true
           this.page.data = []
           this.foodList = []
         })
@@ -77,15 +95,7 @@ export default {
       console.log("select tag")
       let searchTag = this.searchData.tags
       this.searchData.tags = tag
-      // multi tags query.
-      // if(searchTag.length === 0) {
-      //   this.searchData.tags = tag
-      // }else {
-      //    if(searchTag.indexOf(tag) === -1){
-
-      //     this.searchData.tags = searchTag + ', ' + tag
-      //   }
-      // }
+      this.search();
     },
     querySearch(queryString, cb) {
       var all = this.userSearchCacheData.title
@@ -96,6 +106,7 @@ export default {
     },
     querySearchTag(queryString, cb) {
       var all = this.userSearchCacheData.tags
+      console.log(all);
       var results = queryString ? all.filter(this.createFilter(queryString)) : all;
       cb(results)
     },
@@ -109,8 +120,24 @@ export default {
         return (item.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
       };
     },
-    handleSelect(item) {
-      console.log(item)
+    handleSelect(item) {},
+    _saveCacheData() {
+      let cacheData = this.userSearchCacheData;
+      if (!this._hasItem(cacheData.title, "value", this.searchData.title)) {
+        let len = this.userSearchCacheData.title.length;
+        this.userSearchCacheData.title.unshift({ id: len + 1, value: this.searchData.title });
+      }
+      if (!this._hasItem(cacheData.tags, "value", this.searchData.tags)) {
+        let len = this.userSearchCacheData.tags.length;
+        this.userSearchCacheData.tags.unshift({ id: len + 1, value: this.searchData.tags });
+      }
+      if (!this._hasItem(cacheData.common, "value", this.searchData.common)) {
+        let len = this.userSearchCacheData.common.length;
+        this.userSearchCacheData.common.unshift({ id: len + 1, value: this.searchData.common });
+      }
+    },
+    _hasItem(arr, prop, propVal) {
+      return arr.filter(item => item[prop] === propVal).length !== 0
     }
   }
 }
