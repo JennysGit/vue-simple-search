@@ -86,6 +86,9 @@
         :total="foodList.length"
         @current-change="goPageIndex" v-if="foodList.length > 0">
       </el-pagination>
+      <div class="error text-center" v-show="searchResultError && !isSearching">
+         Whoops! 出错了
+      </div>
     </el-main>
     </el-container>
 </template>

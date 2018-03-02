@@ -16,3 +16,8 @@
   margin: 3px;
   min-width: 50px;
 }
+
+.error {
+  color: red;
+  margin-top: 50px;
+}

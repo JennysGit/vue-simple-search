@@ -11,6 +11,7 @@ export default {
       },
       foodList: [],
       isSearching: false,
+      searchResultError: '',
       page: {
         size: 5,
         data: []
@@ -48,12 +49,14 @@ export default {
             this.foodList = res.data.data
             this._pageData(this.foodList)
             this.isSearching = false
-            console.log("foodList", this.foodList)
+          } else {
+            this.searchResultError = res.status + ': 搜索错误'
           }
         })
         .catch((err) => {
           console.log(err)
           this.isSearching = false
+          this.searchResultError = err;
           this.page.data = []
           this.foodList = []
         })
