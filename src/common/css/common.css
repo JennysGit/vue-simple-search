@@ -1,0 +1,50 @@
+.el-container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  .el-container {
+    width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  .el-container {
+    width: 970px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .el-container {
+    width: 1170px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .el-container {
+    width: 1350px;
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.el-table .text-center {
+  text-align: center;
+}
+
+.results-pagination {
+  margin-top: 30px;
+  text-align: center;
+}
+
+a {
+  color: #409eff;
+}
+a:hover {
+  color: #66b1ff;
+}
