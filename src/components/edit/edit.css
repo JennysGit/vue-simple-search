@@ -1,0 +1,41 @@
+.add-comment-btn {
+  position: absolute;
+  bottom: 0;
+  margin-left: 20px;
+}
+
+.comment-box {
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.comment-box:first-child {
+  border-top: 1px solid #ccc;
+}
+
+.comment-box .comment-title .name {
+  font-size: 14px;
+  line-height: 24px;
+  color: #33BEFF;
+  margin-right: 20px;
+}
+
+.time {
+  font-size: 12px;
+  line-height: 25px;
+  color: #999999;
+}
+
+.comment-box .comment-content {
+  font-size: 14px;
+  line-height: 25px;
+  color: #666666;
+}
+
+.remove-comment-btn {
+  position: absolute;
+  top: 50%;
+  margin-top: -20px;
+  right: 20px;
+}

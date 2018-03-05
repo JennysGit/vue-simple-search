@@ -5,6 +5,11 @@
   margin-left: auto;
 }
 
+.editor .ql-container {
+  min-height: 300px;
+}
+
+
 @media (min-width: 768px) {
   .el-container {
     width: 750px;
@@ -45,6 +50,7 @@
 a {
   color: #409eff;
 }
+
 a:hover {
   color: #66b1ff;
 }
